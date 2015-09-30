@@ -136,18 +136,18 @@ func (daemon *internalGroupDaemon) spawn(toiler Toiler) {
 				// Toil() method panic()ed.
 				//
 				// We do this by trying to cast it to another type of interface.
-				// Specifically, the ToilRecovereder interface.
+				// Specifically, the toilRecovereder interface.
 				//
 				// This can be useful for adding in logging, tracking, etc.
 				//
-				// We do the actual call to the ToilRecovereder's Recovered() method
+				// We do the actual call to the toilRecovereder's Recovered() method
 				// in a goroutine, since we don't want it to block or panic() here!
 				//
 				// NOTE THAT THIS IS A POTENTIAL SOURCE OF A RESOURCE LEAK!!!!!!
-				if toilRecovereder, ok := toiler.(ToilRecovereder); ok {
-					go func(toilRecovereder ToilRecovereder){
-						toilRecovereder.Recovered(r)
-					}(toilRecovereder)
+				if recoveredableToiler, ok := toiler.(toilRecovereder); ok {
+					go func(recoveredableToiler toilRecovereder){
+						recoveredableToiler.Recovered(r)
+					}(recoveredableToiler)
 				}
 			}
 		}()
@@ -165,18 +165,18 @@ func (daemon *internalGroupDaemon) spawn(toiler Toiler) {
 		// Toil() method return (gracefully).
 		//
 		// We do this by trying to cast it to another type of interface.
-		// Specifically, the ToilTerminateder interface.
+		// Specifically, the toilTerminateder interface.
 		//
 		// This can be useful for adding in logging, tracking, etc.
 		//
-		// We do the actual call to the ToilTerminateder's Terminated() method
+		// We do the actual call to the toilTerminateder's Terminated() method
 		// in a goroutine, since we don't want it to block or panic() here!
 		//
 		// NOTE THAT THIS IS A POTENTIAL SOURCE OF A RESOURCE LEAK!!!!!!
-		if toilTerminateder, ok := toiler.(ToilTerminateder); ok {
-			go func(toilTerminateder ToilTerminateder){
-				toilTerminateder.Terminated()
-			}(toilTerminateder)
+		if terminatedableToiler, ok := toiler.(toilTerminateder); ok {
+			go func(terminatedableToiler toilTerminateder){
+				terminatedableToiler.Terminated()
+			}(terminatedableToiler)
 		}
 
 	}(toiler)

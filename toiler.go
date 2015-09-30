@@ -10,27 +10,27 @@ type Toiler interface {
 }
 
 
-// ToilTerminateder is an interface that wraps the Toil and Terminated methods.
+// toilTerminateder is an interface that wraps the Toil and Terminated methods.
 //
 // The purpose of the Toil method is to do work.
 // The Toil method should block while it is doing work.
 //
 // The purpose of the Terminated method is as a means of notifying when
 // the Toil returned (gracefully).
-type ToilTerminateder interface {
+type toilTerminateder interface {
 	Toiler
 	Terminated()
 }
 
 
-// ToilRecovereder is an interface that wraps the Toil and Recovered methods.
+// toilRecovereder is an interface that wraps the Toil and Recovered methods.
 //
 // The purpose of the Toil method is to do work.
 // The Toil method should block while it is doing work.
 //
 // The purpose of the Recovered method is as a means of notifying when
 // the Toil method panic()ed.
-type ToilRecovereder interface {
+type toilRecovereder interface {
 	Toiler
 	Recovered(interface{})
 }

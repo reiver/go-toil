@@ -119,7 +119,7 @@ func (toiler *ToilRecorder) Toil() {
 }
 
 
-// Recovered is part of the toil.ToilRecovereder interface.
+// Recovered is part of the toil.toilRecovereder interface.
 func (toiler *ToilRecorder) Recovered(panicValue interface{}) {
 	if nil != toiler.recoveredFunc {
 		toiler.recoveredFunc(panicValue)
@@ -127,7 +127,7 @@ func (toiler *ToilRecorder) Recovered(panicValue interface{}) {
 }
 
 
-// Terminated is part of the toil.ToilTerminateder interface.
+// Terminated is part of the toil.toilTerminateder interface.
 func (toiler *ToilRecorder) Terminated() {
 	if nil != toiler.terminatedFunc {
 		toiler.terminatedFunc()
