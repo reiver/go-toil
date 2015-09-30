@@ -21,7 +21,7 @@ To use, create one or more types that implement the toil.Toiler interface. For e
 Then create a toil.Group. For example:
 
 	var (
-		myToilerGroup = toil.NewGroup()
+		ToilerGroup = toil.NewGroup()
 	)
 
 Then register one of more toilers (i.e., types that implement the toil.Toiler interface)
@@ -29,7 +29,7 @@ with the toiler group. For example:
 
 	toiler := newMyToiler()
 
-	myToilGroup.Register(toiler)
+	ToilerGroup.Register(toiler)
 
 Then, you can call the Toil method of the toiler group in place like main(). For example:
 
@@ -49,7 +49,7 @@ Then, you can call the Toil method of the toiler group in place like main(). For
 		// registered in this toiler group's Toil() methods
 		// finishes (either because it returned gracefully
 		// or because it panic()ed).
-		myToilGroup.Toil()
+		ToilerGroup.Toil()
 	
 		// ...
 	
