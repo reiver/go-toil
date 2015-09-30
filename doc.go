@@ -43,12 +43,12 @@ Then, you can call the Toil method of the toiler group in place like main(). For
 		//
 		// Thus causing each of those toilers registered
 		// with it to start doing its work (whatever that
-		// happens to be).
+		// happens to be) all at the same time, simultaneously.
 		//
-		// This will block until all the the toilers
-		// registered in this toiler group's Toil() methods
-		// finishes (either because it returned gracefully
-		// or because it panic()ed).
+		// This will block until all the toilers registered
+		// in this toiler group's Toil() methods finishes
+		// (either because it returned gracefully or because
+		// it panic()ed).
 		ToilerGroup.Toil()
 	
 		// ...
