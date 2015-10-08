@@ -14,6 +14,10 @@ type ToilRecorder struct {
 	recoveredFunc  func(interface{})
 	terminatedFunc func()
 	toilFunc       func()
+
+	returnedNoticeFunc  func()
+	panickedNoticeFunc  func(interface{})
+	recoveredNoticeFunc func(interface{})
 }
 
 
@@ -49,6 +53,28 @@ func (toiler *ToilRecorder) TerminatedFunc(fn func()) {
 func (toiler *ToilRecorder) ToilFunc(fn func()) {
 	toiler.toilFunc = fn
 }
+
+
+
+
+// ReturnedNoticeFunc registers the func that will be called as part of when the
+// ReturnedNotice() method is called.
+func (toiler *ToilRecorder) ReturnedNoticeFunc(fn func()) {
+	toiler.returnedNoticeFunc = fn
+}
+
+// PanickedNoticeFunc registers the func that will be called as part of when the
+// PanickedNotice() method is called.
+func (toiler *ToilRecorder) PanickedNoticeFunc(fn func(interface{})) {
+	toiler.panickedNoticeFunc = fn
+}
+
+// RecoveredNoticeFunc registers the func that will be called as part of when the
+// RecoveredNotice() method is called.
+func (toiler *ToilRecorder) RecoveredNoticeFunc(fn func(interface{})) {
+	toiler.recoveredNoticeFunc = fn
+}
+
 
 
 // NumToiling returns the number of active calls to its Toil() method.
@@ -137,3 +163,26 @@ func (toiler *ToilRecorder) Terminated() {
 
 
 
+// ReturnedNotice will call the func registerd with the call to the
+// ReturnedNoticeFunc method.
+func (toiler *ToilRecorder) ReturnedNotice() {
+	if nil != toiler.returnedNoticeFunc {
+		toiler.returnedNoticeFunc()
+	}
+}
+
+// PanickedNotice will call the func registerd with the call to the
+// PanickedNoticeFunc method.
+func (toiler *ToilRecorder) PanickedNotice(panicValue interface{}) {
+	if nil != toiler.panickedNoticeFunc {
+		toiler.panickedNoticeFunc(panicValue)
+	}
+}
+
+// RecoveredNotice will call the func registerd with the call to the
+// RecoveredNoticeFunc method.
+func (toiler *ToilRecorder) RecoveredNotice(panicValue interface{}) {
+	if nil != toiler.recoveredNoticeFunc {
+		toiler.recoveredNoticeFunc(panicValue)
+	}
+}
