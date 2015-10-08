@@ -5,17 +5,20 @@ Usage
 
 To use, create one or more types that implement the toil.Toiler interface. For example:
 
-	type myToiler struct{}
+	type awesomeToiler struct{}
 	
-	func newMyToiler() {
+	func newAwesomeToiler() {
 	
-		toiler := myToiler{}
+		toiler := awesomeToiler{}
 	
 		return &toiler
 	}
 	
-	func (toiler *myToiler) Toil() {
+	func (toiler *awesomeToiler) Toil() {
 		//@TODO: Do work here.
+		//
+		// And me this block (i.e., not return)
+		// until the work is done.
 	}
 
 Then create a toil.Group. For example:
@@ -27,7 +30,7 @@ Then create a toil.Group. For example:
 Then register one of more toilers (i.e., types that implement the toil.Toiler interface)
 with the toiler group. For example:
 
-	toiler := newMyToiler()
+	toiler := newAwesomeToiler()
 
 	ToilerGroup.Register(toiler)
 
@@ -68,64 +71,64 @@ of each case.
 If a toiler also has a Terminated() method, then the toiler group will call the toiler's
 Terminated() method when the toiler's Toil() method has returned gracefully. For example:
 
-	type myToiler struct{}
+	type awesomeToiler struct{}
 	
-	func newMyToiler() {
+	func newAwesomeToiler() {
 	
-		toiler := myToiler{}
+		toiler := awesomeToiler{}
 	
 		return &toiler
 	}
 	
-	func (toiler *myToiler) Toil() {
+	func (toiler *awesomeToiler) Toil() {
 		//@TODO: Do work here.
 	}
 	
-	func (toiler *myToiler) Terminated() {
+	func (toiler *awesomeToiler) Terminated() {
 		//@TODO: Do something with this notification.
 	}
 
 If a toiler also has a Recovered() method, then the toiler group will call the toiler's
 Recovered() method when the toiler's Toil() method has panic()ed. For example:
 
-	type myToiler struct{}
+	type awesomeToiler struct{}
 	
-	func newMyToiler() {
+	func newAwesomeToiler() {
 	
-		toiler := myToiler{}
+		toiler := awesomeToiler{}
 	
 		return &toiler
 	}
 	
-	func (toiler *myToiler) Toil() {
+	func (toiler *awesomeToiler) Toil() {
 		//@TODO: Do work here.
 	}
 	
-	func (toiler *myToiler) Recovered() {
+	func (toiler *awesomeToiler) Recovered() {
 		//@TODO: Do something with this notification.
 	}
 
 And of course, a toiler can take advantage of both of these notifications and have
 both a Recovered() and Terminated() method. For example:
 
-	type myToiler struct{}
+	type awesomeToiler struct{}
 	
-	func newMyToiler() {
+	func newAwesomeToiler() {
 	
-		toiler := myToiler{}
+		toiler := awesomeToiler{}
 	
 		return &toiler
 	}
 	
-	func (toiler *myToiler) Toil() {
+	func (toiler *awesomeToiler) Toil() {
 		//@TODO: Do work here.
 	}
 	
-	func (toiler *myToiler) Recovered() {
+	func (toiler *awesomeToiler) Recovered() {
 		//@TODO: Do something with this notification.
 	}
 	
-	func (toiler *myToiler) Terminated() {
+	func (toiler *awesomeToiler) Terminated() {
 		//@TODO: Do something with this notification.
 	}
 
