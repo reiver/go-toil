@@ -100,7 +100,7 @@ func TestToil(t *testing.T) {
 }
 
 
-func TestToilRecovereder(t *testing.T) {
+func TestToilPanicked(t *testing.T) {
 
 	// Initialize.
 	randomness := rand.New( rand.NewSource( time.Now().UTC().UnixNano() ) )
@@ -109,18 +109,20 @@ func TestToilRecovereder(t *testing.T) {
 	// Do test.
 	toiler := toiltest.NewRecorder()
 
-	var toilWaitGroup sync.WaitGroup
-	toilWaitGroup.Add(1)
+	numToiled := 0
+	var toiledWaitGroup sync.WaitGroup
+	toiledWaitGroup.Add(1)
 	toiler.ToilFunc(func(){
-		toilWaitGroup.Done()
+		numToiled++
+		toiledWaitGroup.Done()
 	})
 
-	var receivedPanicValue interface{}
-	var recoveredWaitGroup sync.WaitGroup
-	recoveredWaitGroup.Add(1)
-	toiler.RecoveredFunc(func(panicValue interface{}){
-		receivedPanicValue = panicValue
-		recoveredWaitGroup.Done()
+
+	numPanicked := 0
+	var panickedWaitGroup sync.WaitGroup
+	toiler.PanickedNoticeFunc(func(panicValue interface{}){
+		numPanicked++
+		panickedWaitGroup.Done()
 	})
 
 
@@ -130,48 +132,52 @@ func TestToilRecovereder(t *testing.T) {
 	group.Register(toiler)
 
 
-	go group.Toil()
-	toilWaitGroup.Wait() // Make sure all the calls on the Toil() method are done before continuing.
+	var expectedPanicValue interface{} = nil
+	go func() {
+		defer func() {
+			if expected, actual := 1, numToiled; expected != actual {
+				t.Errorf("Expected number of times toiled to be %d, but actually was %d.", expected, actual)
+			}
+
+			if panicValue := recover(); nil != panicValue {
+				if expected, actual := panicValue, expectedPanicValue; expected != actual {
+					t.Errorf("Expected caught panic value to be [%v], but actually was [%v].", expected, actual)
+				}
+			} else {
+				t.Errorf("This should NOT get to this part of the code either!!")
+			}
+		}()
+
+		group.Toil()
+	}()
+	toiledWaitGroup.Wait() // Make sure all the calls on the Toil() method are done before continuing.
 
 
-	panicValue := fmt.Sprintf("Panic Value with some random stuff: %d", randomness.Intn(999999999))
-	toiler.Panic(panicValue)
-	recoveredWaitGroup.Wait() // Make sure all the calls on the Recovered() method are done before continuing.
 
-
-	if expected, actual := panicValue, receivedPanicValue; expected != actual {
-		t.Errorf("Expected recovered panic value to be %v, but actually was %v.", expected, actual)
+	if expected, actual := 1, numToiled; expected != actual {
+		t.Errorf("Expected number of times toiled to be %d, but actually was %d.", expected, actual)
 	}
-}
+
+	if expected, actual := 0, numPanicked; expected != actual {
+		t.Errorf("Expected number of times panicked to be %d, but actually was %d.", expected, actual)
+	}
 
 
-func TestToilTerminateder(t *testing.T) {
 
-	toiler := toiltest.NewRecorder()
-
-	var toilWaitGroup sync.WaitGroup
-	toilWaitGroup.Add(1)
-	toiler.ToilFunc(func(){
-		toilWaitGroup.Done()
-	})
-
-	var terminatedWaitGroup sync.WaitGroup
-	terminatedWaitGroup.Add(1)
-	toiler.TerminatedFunc(func(){
-		terminatedWaitGroup.Done()
-	})
+	panickedWaitGroup.Add(1)
+	panicValue := fmt.Sprintf("Panic Value with some random stuff: %d", randomness.Intn(999999999))
+	expectedPanicValue = panicValue // <----------------- NOTE we set the expectedPanicValue
+	toiler.Panic(panicValue)
+	panickedWaitGroup.Wait()
 
 
-	group := NewGroup()
 
+	//                     V---------- NOTE that sayed as 1.
+	if expected, actual := 1, numToiled; expected != actual {
+		t.Errorf("Expected number of times toiled to be %d, but actually was %d.", expected, actual)
+	}
 
-	group.Register(toiler)
-
-
-	go group.Toil()
-	toilWaitGroup.Wait() // Make sure all the calls on the Toil() method are done before continuing.
-
-
-	toiler.Terminate()
-	terminatedWaitGroup.Wait() // Make sure all the calls on the Terminated() method are done before continuing.
+	if expected, actual := 1, numPanicked; expected != actual {
+		t.Errorf("Expected number of times panicked to be %d, but actually was %d.", expected, actual)
+	}
 }

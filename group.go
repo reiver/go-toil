@@ -18,15 +18,19 @@ type Group interface {
 
 type internalGroup struct {
 	daemon *internalGroupDaemon
+	panicCh chan interface{}
 }
 
 
 // NewGroup returns an initialized Group.
 func NewGroup() Group {
-	groupDaemon := newGroupDaemon()
+	panicCh := make(chan interface{})
+
+	groupDaemon := newGroupDaemon(panicCh)
 
 	group := internalGroup{
 		daemon:groupDaemon,
+		panicCh:panicCh,
 	}
 
 	return &group
@@ -72,6 +76,22 @@ func (group *internalGroup) Toil() {
 	         // the Wait() method below to avoid a race condition.
 
 
-	// Block while any toiler in this group is still toiling.
-	group.daemon.Waiter().Wait()
+	// Block while any toiler in this group is still toiling and
+	// none of them have panic()ed.
+	//
+	// If any panic() then this panic()s.
+	waitForThem := func() (<-chan struct{}) {
+		ch := make(chan struct{})
+		go func() {
+			group.daemon.Waiter().Wait()
+			ch <- struct{}{}
+		}()
+		return ch
+	}
+
+	select {
+	case panicValue := <-group.panicCh:
+		panic(panicValue)
+	case <-waitForThem():
+	}
 }

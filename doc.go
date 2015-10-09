@@ -88,8 +88,8 @@ Terminated() method when the toiler's Toil() method has returned gracefully. For
 		//@TODO: Do something with this notification.
 	}
 
-If a toiler also has a Recovered() method, then the toiler group will call the toiler's
-Recovered() method when the toiler's Toil() method has panic()ed. For example:
+If a toiler also has a PanickedNotice() method, then the toiler group will call the toiler's
+PanickedNotice() method when the toiler's Toil() method has panic()ed. For example:
 
 	type awesomeToiler struct{}
 	
@@ -104,12 +104,12 @@ Recovered() method when the toiler's Toil() method has panic()ed. For example:
 		//@TODO: Do work here.
 	}
 	
-	func (toiler *awesomeToiler) Recovered() {
+	func (toiler *awesomeToiler) PanickedNotice() {
 		//@TODO: Do something with this notification.
 	}
 
 And of course, a toiler can take advantage of both of these notifications and have
-both a Recovered() and Terminated() method. For example:
+both a PanickedNotice() and Terminated() method. For example:
 
 	type awesomeToiler struct{}
 	
@@ -124,7 +124,7 @@ both a Recovered() and Terminated() method. For example:
 		//@TODO: Do work here.
 	}
 	
-	func (toiler *awesomeToiler) Recovered() {
+	func (toiler *awesomeToiler) PanickedNotice() {
 		//@TODO: Do something with this notification.
 	}
 	

@@ -8,6 +8,7 @@ import (
 
 type internalGroupDaemon struct {
 	waitGroup       sync.WaitGroup
+	panicCh    chan<- interface{}
 	lengthCh   chan struct{returnCh chan int}
 	pingCh     chan struct{doneCh   chan struct{}}
 	registerCh chan struct{doneCh   chan struct{}; toiler Toiler}
@@ -15,7 +16,7 @@ type internalGroupDaemon struct {
 }
 
 
-func newGroupDaemon() *internalGroupDaemon {
+func newGroupDaemon(panicCh chan<- interface{}) *internalGroupDaemon {
 
 	lengthCh   := make(chan struct{returnCh chan int})
 	pingCh     := make(chan struct{doneCh   chan struct{}})
@@ -23,6 +24,7 @@ func newGroupDaemon() *internalGroupDaemon {
 	toilCh     := make(chan struct{doneCh   chan struct{}})
 
 	daemon := internalGroupDaemon{
+		panicCh:panicCh,
 		lengthCh:lengthCh,
 		pingCh:pingCh,
 		toilCh:toilCh,
@@ -127,7 +129,7 @@ func (daemon *internalGroupDaemon) spawn(toiler Toiler) {
 		// We do this so that we can capture a panic() that could happen from the
 		// toiler's Toil() method.
 		defer func() {
-			if r := recover(); nil != r {
+			if panicValue := recover(); nil != panicValue {
 
 				// If we got to this point in the code, then the toiler's Toil()
 				// method has panic()ed (rather than returning gracefully).
@@ -136,19 +138,28 @@ func (daemon *internalGroupDaemon) spawn(toiler Toiler) {
 				// Toil() method panic()ed.
 				//
 				// We do this by trying to cast it to another type of interface.
-				// Specifically, the toilRecovereder interface.
+				// Specifically, the panickedNotifiableToiler interface.
 				//
 				// This can be useful for adding in logging, tracking, etc.
 				//
-				// We do the actual call to the toilRecovereder's Recovered() method
+				// We do the actual call to the toiler's PanickedNotice() method
 				// in a goroutine, since we don't want it to block or panic() here!
 				//
 				// NOTE THAT THIS IS A POTENTIAL SOURCE OF A RESOURCE LEAK!!!!!!
-				if recoveredableToiler, ok := toiler.(toilRecovereder); ok {
-					go func(recoveredableToiler toilRecovereder){
-						recoveredableToiler.Recovered(r)
-					}(recoveredableToiler)
+				//
+				// We also make the toiler group panic() as a result of this, by
+				// panic()ing on the same panic value we recovered here.
+				//
+				// We do this sending the recovered panic value on the panic channel
+				// which the group's Toil method will be listening too, and if it
+				// receives anything on it it panics on that value.
+				if notifiableToiler, ok := toiler.(panickedNotifiableToiler); ok {
+					go func(notifiableToiler panickedNotifiableToiler){
+						notifiableToiler.PanickedNotice(panicValue)
+					}(notifiableToiler)
 				}
+
+				daemon.panicCh <- panicValue
 			}
 		}()
 

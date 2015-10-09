@@ -14,7 +14,9 @@ import (
 
 func TestNewGroupDaemon(t *testing.T) {
 
-	daemon := newGroupDaemon()
+	panicCh := make(chan interface{})
+
+	daemon := newGroupDaemon(panicCh)
 	if nil == daemon {
 		t.Errorf("After creating a new daemon, expected it to not be nil, but it was: %v", daemon)
 		return
@@ -38,7 +40,9 @@ func TestNewGroupDaemon(t *testing.T) {
 
 func TestPingCh(t *testing.T) {
 
-	daemon := newGroupDaemon()
+	panicCh := make(chan interface{})
+
+	daemon := newGroupDaemon(panicCh)
 
 	const NUM_PING_TESTS = 20
 	doneCh := make(chan struct{})
@@ -54,7 +58,9 @@ func TestPingCh(t *testing.T) {
 
 func TestLengthCh(t *testing.T) {
 
-	daemon := newGroupDaemon()
+	panicCh := make(chan interface{})
+
+	daemon := newGroupDaemon(panicCh)
 
 	lengthReturnCh := make(chan int)
 	daemon.LengthCh() <- struct{returnCh chan int}{
@@ -73,7 +79,9 @@ func TestRegisterCh(t *testing.T) {
 
 	toiler := toiltest.NewRecorder()
 
-	daemon := newGroupDaemon()
+	panicCh := make(chan interface{})
+
+	daemon := newGroupDaemon(panicCh)
 
 	const NUM_REGISTER_TESTS = 20
 	doneCh := make(chan struct{})
@@ -122,7 +130,9 @@ func TestToilCh(t *testing.T) {
 		})
 
 
-		daemon := newGroupDaemon()
+		panicCh := make(chan interface{})
+
+		daemon := newGroupDaemon(panicCh)
 
 
 		for i:=0; i<numberOfTimesToToil; i++ {
