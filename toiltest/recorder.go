@@ -1,17 +1,16 @@
 package toiltest
 
 
-// ToilRecorder is an implementation of toil.Toiler, as well as an implementation
-// of toil.Recovereder and toil.Terminateder too; it counts the number of times
+// ToilRecorder is an implementation of toil.Toiler, as well as has PanickedNotice,
+// ReturnedNotice and RecoveredNotice methods as well. It counts the number of times
 // its Toil() method has been called and has not returned (i.e., is blocking) as
-// well as allows custom code to run when its Recovered(), Terminated(), or Toil()
-// methods are called.
+// well as allows custom code to run when its PanickedNotice, ReturnedNotice(),
+// RecoveredNotice(), or Toil() methods are called.
 type ToilRecorder struct {
 	panicCh     chan struct{value interface{}}
 	terminateCh chan struct{doneCh chan struct{}}
 	numToiling int
 
-	recoveredFunc  func(interface{})
 	terminatedFunc func()
 	toilFunc       func()
 
@@ -35,12 +34,6 @@ func NewRecorder() *ToilRecorder {
 	return &toilRecorder
 }
 
-
-// RecoveredFunc registers the "recovered function" that will be called as part of when the
-// ToilRecorder's Recovered() method is called.
-func (toiler *ToilRecorder) RecoveredFunc(fn func(interface{})) {
-	toiler.recoveredFunc = fn
-}
 
 // TerminateFunc registers the "terminated function" that will be called as part of when the
 // ToilRecorder's Terminated() method is called.
@@ -89,8 +82,8 @@ func (toiler *ToilRecorder) NumToiling() int {
 // If there are not active (i.e., blocking) calls to Toil() on itself,
 // then it will block until there is one.
 //
-// One use for this method is to check if its Recovered() method was
-// call by the toil.Group it is in (due to the panic()).
+// One use for this method is to check if its RecoveredNotice() method was
+// called by the toil.Group it is in (due to the panic()).
 func (toiler *ToilRecorder) Panic(value interface{}) {
 
 	toiler.panicCh <- struct{value interface{}}{
@@ -141,14 +134,6 @@ func (toiler *ToilRecorder) Toil() {
 
 	if nil != doneCh {
 		doneCh <- struct{}{}
-	}
-}
-
-
-// Recovered is part of the toil.toilRecovereder interface.
-func (toiler *ToilRecorder) Recovered(panicValue interface{}) {
-	if nil != toiler.recoveredFunc {
-		toiler.recoveredFunc(panicValue)
 	}
 }
 
