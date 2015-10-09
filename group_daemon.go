@@ -176,18 +176,18 @@ func (daemon *internalGroupDaemon) spawn(toiler Toiler) {
 		// Toil() method return (gracefully).
 		//
 		// We do this by trying to cast it to another type of interface.
-		// Specifically, the toilTerminateder interface.
+		// Specifically, the returnedNotifiableToiler interface.
 		//
 		// This can be useful for adding in logging, tracking, etc.
 		//
-		// We do the actual call to the toilTerminateder's Terminated() method
+		// We do the actual call to the toiler's ReturnedNotice() method
 		// in a goroutine, since we don't want it to block or panic() here!
 		//
 		// NOTE THAT THIS IS A POTENTIAL SOURCE OF A RESOURCE LEAK!!!!!!
-		if terminatedableToiler, ok := toiler.(toilTerminateder); ok {
-			go func(terminatedableToiler toilTerminateder){
-				terminatedableToiler.Terminated()
-			}(terminatedableToiler)
+		if notifiableToiler, ok := toiler.(returnedNotifiableToiler); ok {
+			go func(notifiableToiler returnedNotifiableToiler){
+				notifiableToiler.ReturnedNotice()
+			}(notifiableToiler)
 		}
 
 	}(toiler)

@@ -11,7 +11,6 @@ type ToilRecorder struct {
 	terminateCh chan struct{doneCh chan struct{}}
 	numToiling int
 
-	terminatedFunc func()
 	toilFunc       func()
 
 	returnedNoticeFunc  func()
@@ -34,12 +33,6 @@ func NewRecorder() *ToilRecorder {
 	return &toilRecorder
 }
 
-
-// TerminateFunc registers the "terminated function" that will be called as part of when the
-// ToilRecorder's Terminated() method is called.
-func (toiler *ToilRecorder) TerminatedFunc(fn func()) {
-	toiler.terminatedFunc = fn
-}
 
 // ToilFunc registers the "toil function" that will be called as part of when the
 // ToilRecorder's Toil() method is called.
@@ -136,15 +129,6 @@ func (toiler *ToilRecorder) Toil() {
 		doneCh <- struct{}{}
 	}
 }
-
-
-// Terminated is part of the toil.toilTerminateder interface.
-func (toiler *ToilRecorder) Terminated() {
-	if nil != toiler.terminatedFunc {
-		toiler.terminatedFunc()
-	}
-}
-
 
 
 
