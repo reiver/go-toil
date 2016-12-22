@@ -3,6 +3,14 @@ package toil
 
 // The ToilerFunc type is an adapter to allow the use of ordinary functions as toilers.
 // If fn is a function with the appropriate signature, ToilerFunc(fn) is a Toiler that calls fn.
+//
+// Example:
+//
+//	func fn() {
+//		//@TODO
+//	}
+//	
+//	var toiler Toiler = ToilerFunc(fn)
 type ToilerFunc func()
 
 
