@@ -27,11 +27,28 @@ func TestLen(t *testing.T) {
 
 	group := NewGroup()
 
-	length := group.Len()
+	{
+		testNumber := 0
 
-	if expected, actual := 0, length; expected != actual {
-		t.Errorf("After creating new groupp, expected the number of registered toilers to be %d, but actually was %d.", expected, actual)
-		return
+		length := group.Len()
+		if expected, actual := 0, length; expected != actual {
+			t.Errorf("For test #%d, after creating new groupp, expected the number of registered toilers to be %d, but actually was %d.", testNumber, expected, actual)
+			return
+		}
+	}
+
+
+	const limit = 30
+	for testNumber := 1; testNumber <= limit; testNumber++ {
+		group.Register( ToilerFunc(func(){}) )
+
+		{
+			length := group.Len()
+			if expected, actual := testNumber, length; expected != actual {
+				t.Errorf("For test #%d, after creating new groupp, expected the number of registered toilers to be %d, but actually was %d.", testNumber, expected, actual)
+				return
+			}
+		}
 	}
 }
 
