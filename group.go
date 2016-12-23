@@ -39,6 +39,7 @@ func NewGroup() Group {
 
 func (group *internalGroup) Len() int {
 	lengthReturnCh := make(chan int)
+	defer close(lengthReturnCh)
 
 	group.daemon.LengthCh() <- struct{returnCh chan int}{
 		returnCh:lengthReturnCh,
