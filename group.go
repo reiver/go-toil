@@ -53,6 +53,7 @@ func (group *internalGroup) Len() int {
 
 func (group *internalGroup) Register(toiler Toiler) {
 	doneCh := make(chan struct{})
+	defer close(doneCh)
 
 	group.daemon.RegisterCh() <- struct{doneCh chan struct{}; toiler Toiler}{
 		doneCh:doneCh,
